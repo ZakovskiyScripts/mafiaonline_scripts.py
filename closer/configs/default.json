@@ -1,13 +1,6 @@
 {
     "accounts": [
-		    "c6595b639d:4719zxcv",
-"c40f684032:4719zxcv",
-"1129568000:4719zxcv",
-"b7f5a6aa25:4719zxcv",
-"eca4e20a54:4719zxcv",
-"c4570d8e9c:4719zxcv",
-"e9c93e7847:4719zxcv",
-"63f6859dec:4719zxcv"
+		    "email:password",
 	],
 	"debug": true,
 	"players": 8,
