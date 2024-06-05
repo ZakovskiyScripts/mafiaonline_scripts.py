@@ -1,0 +1,17 @@
+{
+	"main": ["nickname", "password"],
+	"host": "",
+	"role": [],
+	"max_players": 8,
+	"mode": 2,
+	"force": true,
+	"room_title": "xex",
+	"room_password": "123dq12312w",
+	"debug": false,
+	"min_level": 1,
+	"vip_enabled": false,
+	"accounts": {
+		"8": [
+		]
+	}
+}

@@ -1,0 +1,8 @@
+{
+    "accounts": [
+		    "email:password",
+"email:password"
+	],
+    "debug": false,
+    "server": "ru"
+}

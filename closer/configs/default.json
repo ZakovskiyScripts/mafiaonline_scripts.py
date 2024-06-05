@@ -1,0 +1,8 @@
+{
+    "accounts": [
+		    "email:password",
+	],
+	"debug": true,
+	"players": 8,
+	"tg": -100
+}
