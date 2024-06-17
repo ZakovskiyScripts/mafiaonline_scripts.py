@@ -12,7 +12,7 @@ UPTIME: int = int(time.time())
 config = input("config << ")
 if not config:
     config = "default"
-with open(f"./configs/{config}.json", "r") as cfg:
+with open(f"./configs/{config}.json", "r", encoding="utf8") as cfg:
     config = json.load(cfg)
 HOST: str = config.get("host", "")
 ROLE: int = config.get("role", [])
@@ -61,7 +61,7 @@ CIVS = [
 ENABLED_ROLES: List[Roles] = [Roles.BODYGUARD, Roles.INFORMER, Roles.TERRORIST,
     Roles.SPY, Roles.DOCTOR, Roles.LOVER, Roles.JOURNALIST]
 if MODE == 1:
-    ENABLED_ROLES: List[Roles] = [Roles.BARMAN, Roles.TERRORIST, Roles.LOVER, Roles.SPY, Roles.JOURNALIST, Roles.DOCTOR, Roles.INFORMER]
+    ENABLED_ROLES: List[Roles] = [Roles.BARMAN, Roles.TERRORIST, Roles.LOVER, Roles.SPY, Roles.JOURNALIST, Roles.DOCTOR]
 
 @dataclass
 class Player:
@@ -95,15 +95,11 @@ class Farm:
             self.accounts.append([data[0], data[1]])
 
     def search_role(self, player: Player) -> int:
-        data = player.client._get_data("roles", True)
-        tryings = 0
-        while data["ty"] != "roles" and tryings != 3:
-            data = player.client._get_data("roles", True)
-            print("rerecvier")
-            tryings += 1
-            time.sleep(.5)
-
-        return data["roles"][0]["r"] if data["ty"] == "roles" else -1
+        try:
+            data = player.client._get_data("roles")
+            return data["roles"][0]["r"]
+        except:
+            return -1
 
     def format_time(self):
         return f"{datetime.now().strftime('%H:%M:%S')}"
@@ -188,8 +184,13 @@ class Farm:
 
     def create_client(self, email: str, password: str) -> Player:
         while True:
-            client = Client(debug=DEBUG)
-            response = client.sign_in(email, password)
+            try:
+                client = Client(debug=DEBUG)
+                response = client.sign_in(email, password)
+            except:
+                client.__del__()
+                time.sleep(2)
+                continue
             if not response:
                 client.__del__()
                 time.sleep(0.5)
@@ -206,12 +207,13 @@ class Farm:
         self.played = False
         self.rh = False
         if not skip_timer:
-            time.sleep(13)
+            time.sleep(16)
             print('go')
 
-    def log(self, log: str, tg: bool = False) -> None:
+    def log(self, log: str, tg: bool = False, svodka_id: int = None) -> None:
         if not tg:
             log = f"{self.format_time()} | {log}"
+            self.svodka_text += f"{log}\n"
         print(log)
 
     def shuher(self, uid: str = "user_57e6cce718056") -> bool:
@@ -264,12 +266,26 @@ class Farm:
                 except Exception as e:
                     
                     time.sleep(.5)
-            shuher = self.shuher()
-            if shuher:
-                if shuher != "en":
-                    self.log("! Шухер, но не на англ сервере, поэтому скип.", True)
+            shuher_wowa = self.shuher()
+            if shuher_wowa:
+                if shuher_wowa != "ru":
+                    self.log("! Шухер (wowa), но не на ru сервере, поэтому ждём 3 минуты", True)
+                    time.sleep(150)
+                    shuhers += 1
                 else:
-                    self.log(f"! ШУХЕР НА {shuher} СЕРВЕРЕ !\n ждём 10 минут", True)
+                    self.log(f"! ШУХЕР (wowa) НА {shuher_wowa} СЕРВЕРЕ !\n ждём 10 минут", True)
+                    time.sleep(600)
+                    shuhers += 1
+                    continue
+            time.sleep(.5)
+            shuher_fayde = self.shuher("user_5f3f4e161740f490690zoy")
+            if shuher_fayde:
+                if shuher_fayde != "ru":
+                    self.log("! Шухер (fayde), но не на ru сервере, поэтому ждём 3 минуты.", True)
+                    time.sleep(150)
+                    shuhers += 1
+                else:
+                    self.log(f"! ШУХЕР (fayde) НА {shuher_fayde} СЕРВЕРЕ !\n ждём 10 минут", True)
                     time.sleep(600)
                     shuhers += 1
                     continue
@@ -288,7 +304,10 @@ class Farm:
             #if self.rh:
             #    self.rehost()
             while self.played:
-                data = listener_account.listen(True)
+                try:
+                    data = listener_account.listen()
+                except:
+                    data = {"ty": "empty"}
                 data_type = data.get("ty")
                 
                 if data_type == "gs":
@@ -305,6 +324,7 @@ class Farm:
                     for index, account in enumerate(self.players):
                         role = self.search_role(account)
                         if role == -1:
+                            print('failed get role_id')
                             self.rehost()
                             break
                         self.players[index].role = role
@@ -323,6 +343,7 @@ class Farm:
                         
                     elif (ROLE and self.self_role not in ROLE) or (not ROLE and FORCE and MODE != 3 and ((self.self_role in CIVS and not self.is_killing_mafia) or
                                                 (self.self_role in MAFIAS and self.is_killing_mafia))):
+                        print('unavailable role')
                         self.rehost()
                         break
                     listener_account = self.get_listener()
@@ -341,6 +362,7 @@ class Farm:
                     of_sytki = int(of_hours*24)
                     work_time_hours = int(work_time / 3600)
                     work_time_minutes = (work_time%3600)//60
+                    svodka_id = str(random.randint(1, 999999999))
                     self.log(f"[🏆] {s} игра закончилась\n[⏳] {int(time.time()-room_time)} секунд\n[👤] роль: {self.self_role}\n[🔎] +{data['a']} авторитета, +{data['ex']} опыта\n\n[⏰] ~{of_sytki} за сутки\n[⏰] ~{of_hours} за час\n\n[💼] скрипт работает {work_time_hours} часов {work_time_minutes} минут\n\n[👀] всего шухеров: {shuhers} ({shuhers * 10} потерянных минут)\n[] всего сбоев: {stopers}", not (s % 1))
                     #all_wins = self.mafia_main.user.wins_as_mafia + self.mafia_main.user.wins_as_peaceful + 1
                     #versus_rating = [b for b in rating if b["rv"] >= all_wins][-1]
