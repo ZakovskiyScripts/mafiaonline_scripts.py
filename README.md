@@ -17,3 +17,4 @@ pip install mafiaonline.py
 * [Фарм](https://github.com/ZakovskiyScripts/mafiaonline_scripts.py/tree/main/farm)
 * [Запиратель](https://github.com/ZakovskiyScripts/mafiaonline_scripts.py/tree/main/closer)
 * [Сервер трансфер](https://github.com/ZakovskiyScripts/mafiaonline_scripts.py/tree/main/servertransfer)
+* [Заниматель никнеймов](https://github.com/ZakovskiyScripts/mafiaonline_scripts.py/tree/main/stalker_nicknames)
